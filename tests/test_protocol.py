@@ -141,6 +141,15 @@ def test_device_time_now_is_utc_with_standard_offset():
     assert t.offset == -time.timezone, t
     assert DeviceTime.parse(t.pack()) == t
     assert t.drift_seconds <= 1
+    assert not t.offset_mismatch
+
+
+def test_device_time_offset_mismatch():
+    # e.g. the HA time zone was changed: the clock is right, the offset is not
+    now = DeviceTime.now()
+    wrong = DeviceTime(time_local=now.time_local, offset=now.offset + 3600)
+    assert wrong.drift_seconds <= 1
+    assert wrong.offset_mismatch
 
 
 if __name__ == "__main__":

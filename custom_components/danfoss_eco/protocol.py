@@ -172,6 +172,11 @@ class DeviceTime:
     def drift_seconds(self) -> int:
         return abs(self.time_local - DeviceTime.now().time_local)
 
+    @property
+    def offset_mismatch(self) -> bool:
+        """The stored UTC offset differs from the one we would write."""
+        return self.offset != DeviceTime.now().offset
+
 
 def parse_name(data: bytes) -> str:
     """Device name characteristic (decrypted, NUL-padded)."""

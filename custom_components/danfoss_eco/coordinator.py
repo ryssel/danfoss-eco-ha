@@ -63,7 +63,9 @@ _LOGGER = logging.getLogger(__name__)
 MAX_CLOCK_DRIFT_S = 120
 # Some units keep the E10 "invalid time" flag raised even after the clock has
 # been written correctly (seen on real hardware: drift 1 s, E10 still set), so
-# E10 on its own may only trigger a sync this often. Drift always may.
+# E10 on its own may only trigger a sync this often. Drift always may. A wrong
+# UTC offset with a correct clock is rate-limited the same way, in case a
+# device does not echo the offset back exactly as written.
 E10_RESYNC_INTERVAL = timedelta(hours=24)
 
 # Coalescing window for user-initiated writes. Long enough that dragging a
@@ -288,9 +290,10 @@ class EtrvCoordinator(DataUpdateCoordinator[EtrvState]):
 
         if self._auto_time_sync and self._needs_clock_sync(state):
             _LOGGER.info(
-                "%s: queueing device clock sync (drift %s s, e10=%s)",
+                "%s: queueing device clock sync (drift %s s, offset %s s, e10=%s)",
                 self.address,
                 state.device_time.drift_seconds,
+                state.device_time.offset,
                 state.errors.flags.get("e10_invalid_time"),
             )
             self.pending.queue_sync_time()
@@ -304,10 +307,14 @@ class EtrvCoordinator(DataUpdateCoordinator[EtrvState]):
     def _needs_clock_sync(self, state: EtrvState) -> bool:
         if state.device_time.drift_seconds > MAX_CLOCK_DRIFT_S:
             return True
-        if not state.errors.flags.get("e10_invalid_time"):
+        if not (
+            state.errors.flags.get("e10_invalid_time")
+            or state.device_time.offset_mismatch
+        ):
             return False
-        # E10 with a correct clock means the device is not clearing the flag;
-        # writing the time again every poll would queue a write forever.
+        # E10 (or a wrong offset) with a correct clock may mean the device does
+        # not take the value; writing the time again every poll would queue a
+        # write forever.
         return (
             self.last_time_sync is None
             or dt_util.utcnow() - self.last_time_sync > E10_RESYNC_INTERVAL
