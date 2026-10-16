@@ -2,6 +2,16 @@
 
 All notable changes to this integration. Dates are release dates.
 
+## v1.3.2 - recover from a stale service cache
+
+- **Fix: a thermostat could stop updating for good.** The BLE service table is
+  cached across connections, and the cache survives a config entry reload. If
+  it ever ended up without one of the characteristics a poll reads, every poll
+  failed with `Characteristic ... was not found!` and the entity stayed on its
+  cached reading. A poll that hits a missing characteristic now drops the
+  cache, so the next poll re-discovers the services. The optional schedule
+  characteristics do not trigger this.
+
 ## v1.3.1 - device clock fix
 
 - **Fix: schedule ran hours early.** The device clock was written as local time
