@@ -2,6 +2,12 @@
 
 All notable changes to this integration. Dates are release dates.
 
+## v1.3.3 - stale service cache, part 2
+
+- **Fix:** the stale service cache could also hide the PIN characteristic, so
+  the poll failed while connecting, before any read, and v1.3.2's recovery
+  never ran. A missing PIN characteristic now drops the cache too.
+
 ## v1.3.2 - recover from a stale service cache
 
 - **Fix: a thermostat could stop updating for good.** The BLE service table is
