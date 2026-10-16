@@ -2,6 +2,15 @@
 
 All notable changes to this integration. Dates are release dates.
 
+## v1.3.1 - device clock fix
+
+- **Fix: schedule ran hours early.** The device clock was written as local time
+  plus the full UTC offset (including DST), and the device adds the offset and
+  applies DST itself, so in CEST the clock ended up 3 h ahead. It is now written
+  the way the official app does it: a UTC epoch plus the standard offset without
+  DST. Devices synced by older versions show ~2 h drift on the next poll and are
+  corrected by the automatic time sync.
+
 ## v1.3.0 — offline resilience
 
 Radiator valves are weak-signal, deep-sleeping BLE devices. A proxy that is busy
