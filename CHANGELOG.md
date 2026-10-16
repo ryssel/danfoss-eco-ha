@@ -2,6 +2,12 @@
 
 All notable changes to this integration. Dates are release dates.
 
+## v1.3.5 - resync on a wrong UTC offset
+
+- A device with a correct clock but a wrong UTC offset (e.g. after the HA time
+  zone was changed) is now resynced too, at most once per 24 h.
+- Tests: the PIN test restores the module globals it patches.
+
 ## v1.3.4 - stale service cache, part 2
 
 (The v1.3.3 tag was cut without the code change; skip it.)
