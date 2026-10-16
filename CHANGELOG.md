@@ -2,7 +2,9 @@
 
 All notable changes to this integration. Dates are release dates.
 
-## v1.3.3 - stale service cache, part 2
+## v1.3.4 - stale service cache, part 2
+
+(The v1.3.3 tag was cut without the code change; skip it.)
 
 - **Fix:** the stale service cache could also hide the PIN characteristic, so
   the poll failed while connecting, before any read, and v1.3.2's recovery
